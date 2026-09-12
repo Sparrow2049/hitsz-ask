@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { createClient } from "@libsql/client";
 import { DbShape, Course, Resource, Question, Answer, Role } from "./types";
 import { seedData } from "./seed";
+import { matchesSearch } from "./utils";
 
 // --- Two storage modes, one interface ---
 //
@@ -87,11 +88,18 @@ export async function getCourse(code: string): Promise<Course | undefined> {
 
 // ---- resources ----
 
-export async function listResources(courseCode?: string): Promise<Resource[]> {
-  const { resources } = await readDb();
-  const filtered = courseCode
-    ? resources.filter((r) => r.courseCode === courseCode.toUpperCase())
-    : resources;
+export async function listResources(
+  courseCode?: string,
+  query?: string
+): Promise<Resource[]> {
+  const { resources, courses } = await readDb();
+  const courseNameByCode = new Map(courses.map((c) => [c.code, c.name]));
+
+  const filtered = resources
+    .filter((r) => !courseCode || r.courseCode === courseCode.toUpperCase())
+    .filter((r) =>
+      matchesSearch(query, [r.title, r.courseCode, courseNameByCode.get(r.courseCode)])
+    );
   return [...filtered].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
@@ -119,11 +127,23 @@ export async function addResource(input: {
 
 // ---- questions + answers ----
 
-export async function listQuestions(courseCode?: string): Promise<Question[]> {
-  const { questions } = await readDb();
-  const filtered = courseCode
-    ? questions.filter((q) => q.courseCode === courseCode.toUpperCase())
-    : questions;
+export async function listQuestions(
+  courseCode?: string,
+  query?: string
+): Promise<Question[]> {
+  const { questions, courses } = await readDb();
+  const courseNameByCode = new Map(courses.map((c) => [c.code, c.name]));
+
+  const filtered = questions
+    .filter((q) => !courseCode || q.courseCode === courseCode.toUpperCase())
+    .filter((q) =>
+      matchesSearch(query, [
+        q.title,
+        q.body,
+        q.courseCode,
+        courseNameByCode.get(q.courseCode),
+      ])
+    );
   return [...filtered].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 

@@ -1,6 +1,20 @@
 @import "tailwindcss";
 
+/* Light mode (default) */
 :root {
+  --color-bg: #f1efea;
+  --color-surface: #a3b7d1;
+  --color-surface-raised: #e3ecf8;
+  --color-border: #6b7076;
+  --color-text: #0b0d10;
+  --color-text-muted: #3f6897;
+  --color-accent: #e8a33d;
+  --color-accent-ink: #211e16;
+  --color-senior: #27865c;
+}
+
+/* Dark mode, toggled via a "dark" class on <html> (next-themes) */
+.dark {
   --color-bg: #0b0d10;
   --color-surface: #14171b;
   --color-surface-raised: #191d22;

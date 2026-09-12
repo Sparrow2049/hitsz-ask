@@ -3,15 +3,16 @@ import ResourceCard from "@/components/ResourceCard";
 import ResourceForm from "@/components/ResourceForm";
 import EmptyState from "@/components/EmptyState";
 import CourseFilterRow from "@/components/CourseFilterRow";
+import SearchBar from "@/components/SearchBar";
 
 export default async function ResourcesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ course?: string }>;
+  searchParams: Promise<{ course?: string; query?: string }>;
 }) {
-  const { course } = await searchParams;
+  const { course, query } = await searchParams;
   const courses = await getCourses();
-  const resources = await listResources(course);
+  const resources = await listResources(course, query);
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
@@ -21,18 +22,27 @@ export default async function ResourcesPage({
       </p>
 
       <div className="mt-6">
+        <SearchBar placeholder="Search resources by course, title, or keyword…" />
+      </div>
+
+      <div className="mt-4">
         <CourseFilterRow
           courses={courses}
           basePath="/resources"
           selected={course}
+          query={query}
         />
       </div>
 
       <div className="mt-6 space-y-3">
         {resources.length === 0 ? (
           <EmptyState
-            title="Nothing here yet"
-            description="Be the first to share something for this course."
+            title={query ? `No matches for "${query}"` : "Nothing here yet"}
+            description={
+              query
+                ? "Try a different course, title, or keyword."
+                : "Be the first to share something for this course."
+            }
           />
         ) : (
           resources.map((r) => (

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { IdentityProvider } from "@/lib/identity";
 import Header from "@/components/Header";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -26,12 +28,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <IdentityProvider>
-          <Header />
-          <main className="flex-1">{children}</main>
-        </IdentityProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <IdentityProvider>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <ThemeToggle />
+          </IdentityProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

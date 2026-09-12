@@ -5,6 +5,7 @@ import {
   formatRelativeTime,
   sortByNewest,
   initials,
+  matchesSearch,
 } from "../src/lib/utils.ts";
 
 test("isValidCourseCode accepts real-shaped codes, rejects junk", () => {
@@ -49,4 +50,13 @@ test("initials handles one word, two words, and empty input", () => {
   assert.equal(initials("Wei Chen"), "WC");
   assert.equal(initials("Cher"), "CH");
   assert.equal(initials("   "), "?");
+});
+
+test("matchesSearch is case-insensitive across fields, and empty query matches everything", () => {
+  const fields = ["Linear Algebra", "MATH102", undefined];
+  assert.equal(matchesSearch("algebra", fields), true);
+  assert.equal(matchesSearch("MATH102", fields), true, "should be case-insensitive");
+  assert.equal(matchesSearch("physics", fields), false);
+  assert.equal(matchesSearch(undefined, fields), true, "no query = no filtering");
+  assert.equal(matchesSearch("   ", fields), true, "whitespace-only query = no filtering");
 });

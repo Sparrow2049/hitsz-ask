@@ -3,15 +3,16 @@ import QuestionCard from "@/components/QuestionCard";
 import QuestionForm from "@/components/QuestionForm";
 import EmptyState from "@/components/EmptyState";
 import CourseFilterRow from "@/components/CourseFilterRow";
+import SearchBar from "@/components/SearchBar";
 
 export default async function AskPage({
   searchParams,
 }: {
-  searchParams: Promise<{ course?: string }>;
+  searchParams: Promise<{ course?: string; query?: string }>;
 }) {
-  const { course } = await searchParams;
+  const { course, query } = await searchParams;
   const courses = await getCourses();
-  const questions = await listQuestions(course);
+  const questions = await listQuestions(course, query);
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
@@ -22,14 +23,27 @@ export default async function AskPage({
       </p>
 
       <div className="mt-6">
-        <CourseFilterRow courses={courses} basePath="/ask" selected={course} />
+        <SearchBar placeholder="Search questions by course, title, or keyword…" />
+      </div>
+
+      <div className="mt-4">
+        <CourseFilterRow
+          courses={courses}
+          basePath="/ask"
+          selected={course}
+          query={query}
+        />
       </div>
 
       <div className="mt-6 space-y-3">
         {questions.length === 0 ? (
           <EmptyState
-            title="No questions yet"
-            description="Ask what's tripping you up for this course."
+            title={query ? `No matches for "${query}"` : "No questions yet"}
+            description={
+              query
+                ? "Try a different course, title, or keyword."
+                : "Ask what's tripping you up for this course."
+            }
           />
         ) : (
           questions.map((q) => (

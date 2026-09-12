@@ -38,3 +38,17 @@ export function initials(name: string): string {
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
+
+/**
+ * Case-insensitive substring match against any of the given fields. An
+ * empty/whitespace-only query always matches (so callers can pipe an
+ * optional `?query=` search param straight in without an extra branch).
+ */
+export function matchesSearch(
+  query: string | undefined,
+  fields: (string | undefined)[]
+): boolean {
+  const needle = query?.trim().toLowerCase();
+  if (!needle) return true;
+  return fields.some((field) => field?.toLowerCase().includes(needle));
+}

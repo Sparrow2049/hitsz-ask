@@ -5,7 +5,6 @@ import QuestionCard from "@/components/QuestionCard";
 import ResourceForm from "@/components/ResourceForm";
 import QuestionForm from "@/components/QuestionForm";
 import EmptyState from "@/components/EmptyState";
-import { ROLE_LABEL } from "@/lib/utils";
 
 export default async function CoursePage({
   params,
@@ -22,9 +21,7 @@ export default async function CoursePage({
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
-      <p className="text-sm text-text-muted">
-        {course.code} · {ROLE_LABEL[course.year]}
-      </p>
+      <p className="text-sm text-text-muted">{course.code}</p>
       <h1 className="font-display text-3xl text-text">{course.name}</h1>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">

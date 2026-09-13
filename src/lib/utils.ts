@@ -1,25 +1,7 @@
-// Kept deliberately pure (no fs, no fetch, no cross-file imports) so
-// they're trivial to unit test — see tests/utils.test.ts. Node's native
-// test runner (`--experimental-strip-types`) requires explicit extensions
-// on relative imports, unlike Next.js's bundler, so this file avoids
-// importing from sibling modules like `./types` altogether — `as const`
-// gets us the same literal-union type without it.
+// Kept deliberately pure (no fs, no fetch) so they're trivial to unit test —
+// see tests/utils.test.ts.
 
 const COURSE_CODE_PATTERN = /^[A-Z]{2,4}\d{3}$/;
-
-// Single source of truth for the four class years — the identity picker,
-// the answers API's role check, and the "browse by year" groupings on the
-// homepage all read from this instead of repeating the list. Structurally
-// identical to the `Role` type in `types.ts` (same four string literals),
-// so it's interchangeable with it wherever `Role` is expected.
-export const ROLE_ORDER = ["freshman", "sophomore", "junior", "senior"] as const;
-
-export const ROLE_LABEL: Record<(typeof ROLE_ORDER)[number], string> = {
-  freshman: "Freshman",
-  sophomore: "Sophomore",
-  junior: "Junior",
-  senior: "Senior",
-};
 
 /** e.g. "cs201" -> true, "cs2" -> false, "history" -> false */
 export function isValidCourseCode(code: string): boolean {

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useIdentity } from "@/lib/identity";
 import { Course } from "@/lib/types";
-import { ROLE_ORDER, ROLE_LABEL } from "@/lib/utils";
 
 export default function QuestionForm({
   courses,
@@ -67,19 +66,11 @@ export default function QuestionForm({
           onChange={(e) => setCourseCode(e.target.value)}
           className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-accent"
         >
-          {ROLE_ORDER.map((year) => {
-            const yearCourses = courses.filter((c) => c.year === year);
-            if (yearCourses.length === 0) return null;
-            return (
-              <optgroup key={year} label={ROLE_LABEL[year]}>
-                {yearCourses.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.code} — {c.name}
-                  </option>
-                ))}
-              </optgroup>
-            );
-          })}
+          {courses.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.code} — {c.name}
+            </option>
+          ))}
         </select>
       )}
 

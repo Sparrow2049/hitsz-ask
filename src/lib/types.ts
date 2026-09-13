@@ -3,7 +3,7 @@
 // problem — content, scoped to a course, contributed by a student — so they
 // share this data model instead of having two disconnected systems.
 
-export type Role = "freshman" | "sophomore" | "junior" | "senior";
+export type Role = "freshman" | "senior";
 
 export interface Identity {
   name: string;
@@ -13,7 +13,6 @@ export interface Identity {
 export interface Course {
   code: string; // e.g. "CS201" — the unit everything else is organized by
   name: string; // e.g. "Data Structures"
-  year: Role; // which class year this course belongs to
 }
 
 export type ResourceType = "notes" | "past-paper" | "link" | "repo";

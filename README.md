@@ -49,8 +49,7 @@ waypoint/
 │   ├── components/         ← what shows: cards, forms, badges
 │   └── lib/                 ← what thinks: types, data layer, pure helpers
 ├── tests/                  ← unit tests for the pure helpers
-├── data/                   ← generated JSON store (gitignored)
-└── assets/                 ← screenshots for this README
+└── data/                   ← generated JSON store (gitignored)
 ```
 
 ## Where the seed data comes from

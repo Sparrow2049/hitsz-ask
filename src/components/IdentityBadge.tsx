@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useIdentity } from "@/lib/identity";
-import { initials } from "@/lib/utils";
+import { initials, ROLE_ORDER, ROLE_LABEL } from "@/lib/utils";
 import { Role } from "@/lib/types";
 
 export default function IdentityBadge() {
@@ -86,8 +86,11 @@ function QuickForm({
         onChange={(e) => setRole(e.target.value as Role)}
         className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-text focus:outline-none focus:ring-2 focus:ring-accent"
       >
-        <option value="freshman">Freshman</option>
-        <option value="senior">Senior</option>
+        {ROLE_ORDER.map((r) => (
+          <option key={r} value={r}>
+            {ROLE_LABEL[r]}
+          </option>
+        ))}
       </select>
       <button
         type="submit"

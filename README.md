@@ -21,63 +21,6 @@ scroll-years deep in a WhatsApp group. Waypoint doesn't try to replace
 office hours or Discord. It just gives both of those things a permanent,
 searchable, course-shaped home.
 
-## Screenshots
-
-*(Replace these with real screenshots before submitting — judges only see
-the repo and these images, not a live demo.)*
-
-| Home | Course hub | Ask a senior |
-|---|---|---|
-| `assets/home.png` | `assets/course-hub.png` | `assets/ask-thread.png` |
-
-See `assets/README.md` for the exact shots worth taking.
-
-## Setup
-
-Requires Node 20+ (uses Node's built-in test runner + native TypeScript
-support — Node 22+ recommended).
-
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000). The first request
-seeds `data/db.json` from `src/lib/seed.ts` automatically — nothing else
-to configure, no database, no accounts.
-
-```bash
-npm test         # runs the unit tests in tests/
-npm run build    # production build, also type-checks everything
-```
-
-## Try it in under a minute
-
-1. Open the app, set a name in the header, and pick a role (**Freshman** or
-   **Senior**) — this is just a display label, not a real account.
-2. Go to a course hub, e.g. `/courses/MATH100` (Pre-Calculus).
-3. As a freshman: ask a question, or drop a link under "Add a resource."
-4. Switch your role to **Senior** (click *edit* in the header) and answer
-   the question you just asked — watch it flip to "Answered by a senior."
-
-## Deploying it for real (Vercel)
-
-Local dev needs none of this — it's only for a live, publicly-reachable
-deployment.
-
-The app works on Vercel out of the box for browsing. To make "Add a
-resource" and "Ask a senior" actually save once deployed (Vercel's
-production filesystem can't persist a local JSON file — see
-`docs/decisions.md`), set these two environment variables in your Vercel
-project's Settings → Environment Variables, from a free
-[Turso](https://turso.tech) database:
-
-- `TURSO_DATABASE_URL`
-- `TURSO_AUTH_TOKEN`
-
-Without them, the site still works — it just resets to the seed data on
-every deploy instead of saving new submissions.
-
 ## Architecture
 
 The short version: **Ask a senior** and **Share resources** are the same

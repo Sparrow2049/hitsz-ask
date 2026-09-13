@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCourses, listQuestions, listResources } from "@/lib/db";
 import CourseBadge from "@/components/CourseBadge";
+import { ROLE_ORDER, ROLE_LABEL } from "@/lib/utils";
 
 export default async function HomePage() {
   const courses = await getCourses();
@@ -49,10 +50,28 @@ export default async function HomePage() {
 
       <div className="mt-14">
         <p className="text-sm text-text-muted mb-3">Browse by course</p>
-        <div className="flex flex-wrap gap-2">
-          {courses.map((c) => (
-            <CourseBadge key={c.code} course={c} />
-          ))}
+        <div className="space-y-5">
+          {ROLE_ORDER.map((year) => {
+            const yearCourses = courses.filter((c) => c.year === year);
+            return (
+              <div key={year}>
+                <p className="text-xs text-text-muted mb-2">
+                  {ROLE_LABEL[year]}
+                </p>
+                {yearCourses.length === 0 ? (
+                  <p className="text-xs text-text-muted italic">
+                    Soon to be added
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {yearCourses.map((c) => (
+                      <CourseBadge key={c.code} course={c} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

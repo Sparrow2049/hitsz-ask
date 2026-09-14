@@ -86,6 +86,64 @@ export async function getCourse(code: string): Promise<Course | undefined> {
   return (await readDb()).courses.find((c) => c.code === code.toUpperCase());
 }
 
+// One-time, idempotent migration for when the seed data schema evolves
+// after a Turso store already has real data in it. readDb() only ever
+// seeds a *brand new* store (see above) — it has no way to know the seed
+// data changed shape on an existing deployment, so new/changed seed
+// entries silently never reach production without something like this.
+// Purely additive: never removes or overwrites anything, including real
+// user-submitted resources/questions. Safe to call more than once — the
+// second call is a no-op.
+export async function migrateSeedCourses(): Promise<{
+  coursesAdded: string[];
+  yearsBackfilled: string[];
+  resourcesAdded: string[];
+}> {
+  const db = await readDb();
+  const coursesAdded: string[] = [];
+  const yearsBackfilled: string[] = [];
+  const resourcesAdded: string[] = [];
+
+  // Backfill `year` on courses persisted before that field existed.
+  for (const course of db.courses) {
+    if (!course.year) {
+      const seedMatch = seedData.courses.find((c) => c.code === course.code);
+      if (seedMatch) {
+        course.year = seedMatch.year;
+        yearsBackfilled.push(course.code);
+      }
+    }
+  }
+
+  // Add seed courses that don't exist in the store yet.
+  const existingCourseCodes = new Set(db.courses.map((c) => c.code));
+  for (const seedCourse of seedData.courses) {
+    if (!existingCourseCodes.has(seedCourse.code)) {
+      db.courses.push(seedCourse);
+      coursesAdded.push(seedCourse.code);
+    }
+  }
+
+  // Add seed resources that don't exist in the store yet.
+  const existingResourceIds = new Set(db.resources.map((r) => r.id));
+  for (const seedResource of seedData.resources) {
+    if (!existingResourceIds.has(seedResource.id)) {
+      db.resources.push(seedResource);
+      resourcesAdded.push(seedResource.id);
+    }
+  }
+
+  if (
+    coursesAdded.length ||
+    yearsBackfilled.length ||
+    resourcesAdded.length
+  ) {
+    await writeDb(db);
+  }
+
+  return { coursesAdded, yearsBackfilled, resourcesAdded };
+}
+
 // ---- resources ----
 
 export async function listResources(

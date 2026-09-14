@@ -21,38 +21,6 @@ scroll-years deep in a WhatsApp group. Waypoint doesn't try to replace
 office hours or Discord. It just gives both of those things a permanent,
 searchable, course-shaped home.
 
-## Architecture
-
-The short version: **Ask a senior** and **Share resources** are the same
-underlying shape — content scoped to a course — so they share one data
-model instead of being built as two separate mini-apps. See
-[`docs/architecture.md`](docs/architecture.md) for the full breakdown and
-[`docs/decisions.md`](docs/decisions.md) for what we deliberately scoped
-out and why (no login system, no database, no file uploads — all
-intentional, all explained).
-
-## Project structure
-
-```
-waypoint/
-├── README.md              ← this file
-├── docs/
-│   ├── architecture.md    ← components, data flow, the why
-│   └── decisions.md       ← what we chose, what we rejected
-├── src/
-│   ├── app/                ← pages + API routes (Next.js App Router)
-│   │   ├── page.tsx           landing page
-│   │   ├── courses/[code]/    course hub: resources + questions together
-│   │   ├── resources/         all resources, filterable by course
-│   │   ├── ask/                all questions, + /ask/[id] thread view
-│   │   └── api/                POST endpoints the forms call
-│   ├── components/         ← what shows: cards, forms, badges
-│   └── lib/                 ← what thinks: types, data layer, pure helpers
-├── tests/                  ← unit tests for the pure helpers
-├── data/                   ← generated JSON store (gitignored)
-└── assets/                 ← screenshots for this README
-```
-
 ## Where the seed data comes from
 
 The resources in `src/lib/seed.ts` link directly into the real

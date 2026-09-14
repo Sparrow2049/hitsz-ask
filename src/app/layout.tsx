@@ -37,7 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <main className="flex-1">{children}</main>
             <footer className="border-t border-border py-6 text-center text-xs text-text-muted">
             <p>© {new Date().getFullYear()} Arthur. All rights reserved.</p>
-            <p className="mt-1">Built with Jesselyn — thanks for the collaboration.</p>
+            <p className="mt-1">Small thanks to Jesselyn for the collaboration.</p>
             </footer>
             <ThemeToggle />
           </IdentityProvider>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addAnswer, getQuestion } from "@/lib/db";
 import { Role } from "@/lib/types";
+import { ROLE_ORDER } from "@/lib/utils";
 
 export async function POST(
   req: NextRequest,
@@ -16,7 +17,7 @@ export async function POST(
   if (!answerBody?.trim()) {
     return NextResponse.json({ error: "Answer can't be empty." }, { status: 400 });
   }
-  if (role !== "freshman" && role !== "senior") {
+  if (!ROLE_ORDER.includes(role)) {
     return NextResponse.json({ error: "Invalid role." }, { status: 400 });
   }
 

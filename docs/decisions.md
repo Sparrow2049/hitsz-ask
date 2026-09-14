@@ -71,3 +71,16 @@ Node 22 can run TypeScript directly (`--experimental-strip-types`) and has
 real tests on the pure helper functions beat zero tests on a more
 "standard" but heavier setup we didn't have time to fight with (rule:
 "three tests beat zero tests").
+
+## Chose: a one-time migration route over always-merge-on-read
+
+When sophomore/junior courses were added, the existing Turso store on
+production already had data in it — `readDb()` only seeds a *brand new*
+store, so the updated `seed.ts` had no way to reach the live site on its
+own. The alternative was to make every read reconcile the stored data
+against `seedData` automatically, but that risks silently re-adding a
+course or resource that someone deliberately changed or removed later. A
+one-off `/api/admin/migrate` route, run once by hand and then deleted,
+keeps that risk at zero: it merges in anything missing from `seedData`
+exactly once, touches nothing else, and doesn't linger as standing
+behavior.

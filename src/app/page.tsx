@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { getCourses, listQuestions, listResources } from "@/lib/db";
-import CourseBadge from "@/components/CourseBadge";
+import { listQuestions, listResources } from "@/lib/db";
 
 export default async function HomePage() {
-  const courses = await getCourses();
   const questionCount = (await listQuestions()).length;
   const resourceCount = (await listResources()).length;
 
@@ -45,15 +43,6 @@ export default async function HomePage() {
             {resourceCount} resource{resourceCount === 1 ? "" : "s"} so far
           </p>
         </Link>
-      </div>
-
-      <div className="mt-14">
-        <p className="text-sm text-text-muted mb-3">Browse by course</p>
-        <div className="flex flex-wrap gap-2">
-          {courses.map((c) => (
-            <CourseBadge key={c.code} course={c} />
-          ))}
-        </div>
       </div>
     </div>
   );

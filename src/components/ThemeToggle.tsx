@@ -8,7 +8,7 @@ import { useSyncExternalStore } from "react";
 // nothing until then. useSyncExternalStore — rather than useEffect calling
 // setState — means React resolves that before paint instead of rendering
 // null and then flashing in the button a tick later. Same pattern used in
-// lib/identity.tsx for the same underlying reason.
+// lib/role.tsx for the same underlying reason.
 function subscribe() {
   return () => {};
 }

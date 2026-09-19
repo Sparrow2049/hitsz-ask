@@ -2,33 +2,54 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useIdentity } from "@/lib/identity";
+import { useSession, signIn } from "next-auth/react";
+import { useRole } from "@/lib/role";
 
 export default function AnswerForm({ questionId }: { questionId: string }) {
-  const { identity } = useIdentity();
+  const { data: session, status } = useSession();
+  const { role } = useRole();
   const router = useRouter();
 
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  if (status === "loading") {
+    return (
+      <div className="rounded-xl border border-border bg-surface p-4 h-20" />
+    );
+  }
+
+  if (!session?.user) {
+    return (
+      <div className="rounded-xl border border-dashed border-border bg-surface p-4 text-center">
+        <p className="text-sm text-text-muted mb-3">
+          Sign in to answer — this keeps answers tied to a real person
+          instead of anonymous.
+        </p>
+        <button
+          onClick={() => signIn("google")}
+          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:opacity-90 transition-opacity"
+        >
+          Sign in with Google
+        </button>
+      </div>
+    );
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!identity) {
-      setError("Set your name up in the header first.");
-      return;
-    }
     setSubmitting(true);
     setError(null);
     try {
+      // No answeredBy sent — the server derives it from the signed-in
+      // session. `role` still comes from the client since it's a
+      // self-declared preference, not something Google can verify — see
+      // src/lib/role.tsx.
       const res = await fetch(`/api/questions/${questionId}/answers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          body,
-          answeredBy: identity.name,
-          role: identity.role,
-        }),
+        body: JSON.stringify({ body, role }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "Failed");
       setBody("");
@@ -46,15 +67,13 @@ export default function AnswerForm({ questionId }: { questionId: string }) {
       className="rounded-xl border border-border bg-surface p-4 space-y-3"
     >
       <p className="font-display text-base text-text">
-        {identity?.role === "senior"
-          ? "Answer this"
-          : "Add to the discussion"}
+        {role === "senior" ? "Answer this" : "Add to the discussion"}
       </p>
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder={
-          identity?.role === "senior"
+          role === "senior"
             ? "Share what worked when you took this course…"
             : "Ask a follow-up, or add what you've already tried…"
         }

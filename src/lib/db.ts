@@ -183,6 +183,16 @@ export async function addResource(input: {
   return resource;
 }
 
+/** Admin-only — see DELETE /api/resources/[id]. Returns false if no such resource. */
+export async function deleteResource(id: string): Promise<boolean> {
+  const db = await readDb();
+  const index = db.resources.findIndex((r) => r.id === id);
+  if (index === -1) return false;
+  db.resources.splice(index, 1);
+  await writeDb(db);
+  return true;
+}
+
 // ---- questions + answers ----
 
 export async function listQuestions(
@@ -254,4 +264,14 @@ export async function addAnswer(
   if (input.role === "senior") question.resolved = true;
   await writeDb(db);
   return answer;
+}
+
+/** Admin-only — see DELETE /api/questions/[id]. Removes its answers too (they're embedded). Returns false if no such question. */
+export async function deleteQuestion(id: string): Promise<boolean> {
+  const db = await readDb();
+  const index = db.questions.findIndex((q) => q.id === id);
+  if (index === -1) return false;
+  db.questions.splice(index, 1);
+  await writeDb(db);
+  return true;
 }

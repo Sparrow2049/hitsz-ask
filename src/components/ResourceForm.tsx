@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useIdentity } from "@/lib/identity";
+import { useSession, signIn } from "next-auth/react";
 import { Course, ResourceType } from "@/lib/types";
 import { ROLE_ORDER, ROLE_LABEL } from "@/lib/utils";
 
@@ -20,7 +20,7 @@ export default function ResourceForm({
   courses: Course[];
   lockedCourseCode?: string;
 }) {
-  const { identity } = useIdentity();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   const [courseCode, setCourseCode] = useState(
@@ -32,25 +32,41 @@ export default function ResourceForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  if (status === "loading") {
+    return (
+      <div className="rounded-xl border border-border bg-surface p-4 h-24" />
+    );
+  }
+
+  if (!session?.user) {
+    return (
+      <div className="rounded-xl border border-dashed border-border bg-surface p-4 text-center">
+        <p className="text-sm text-text-muted mb-3">
+          Sign in to add a resource — this keeps submissions tied to a real
+          person instead of anonymous.
+        </p>
+        <button
+          onClick={() => signIn("google")}
+          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:opacity-90 transition-opacity"
+        >
+          Sign in with Google
+        </button>
+      </div>
+    );
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!identity) {
-      setError("Set your name up in the header first.");
-      return;
-    }
     setSubmitting(true);
     setError(null);
     try {
+      // No addedBy sent — the server derives it from the signed-in
+      // session, not whatever the client claims. See
+      // src/app/api/resources/route.ts.
       const res = await fetch("/api/resources", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          courseCode,
-          title,
-          type,
-          url,
-          addedBy: identity.name,
-        }),
+        body: JSON.stringify({ courseCode, title, type, url }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "Failed");
       setTitle("");

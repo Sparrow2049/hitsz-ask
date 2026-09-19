@@ -1,0 +1,396 @@
+{
+  "courses": [
+    {
+      "code": "MATH100",
+      "name": "Pre-Calculus",
+      "year": "freshman"
+    },
+    {
+      "code": "MATH101",
+      "name": "Calculus",
+      "year": "freshman"
+    },
+    {
+      "code": "MATH102",
+      "name": "Linear Algebra",
+      "year": "freshman"
+    },
+    {
+      "code": "PHYS101",
+      "name": "College Physics IA",
+      "year": "freshman"
+    },
+    {
+      "code": "PHYS102",
+      "name": "Electric Circuits",
+      "year": "freshman"
+    },
+    {
+      "code": "PHYS103",
+      "name": "Physics Lab IA",
+      "year": "freshman"
+    },
+    {
+      "code": "CHIN101",
+      "name": "Elementary Chinese I",
+      "year": "freshman"
+    },
+    {
+      "code": "CHIN102",
+      "name": "Elementary Chinese II",
+      "year": "freshman"
+    },
+    {
+      "code": "GEN100",
+      "name": "General / Freshman Life",
+      "year": "freshman"
+    },
+    {
+      "code": "MATH201",
+      "name": "Probability and Statistics",
+      "year": "sophomore"
+    },
+    {
+      "code": "PHYS201",
+      "name": "College Physics IB",
+      "year": "sophomore"
+    },
+    {
+      "code": "PHYS202",
+      "name": "Physics Lab IB",
+      "year": "sophomore"
+    },
+    {
+      "code": "CHIN201",
+      "name": "Intermediate Chinese I",
+      "year": "sophomore"
+    },
+    {
+      "code": "GEN200",
+      "name": "Life And Health Science",
+      "year": "sophomore"
+    },
+    {
+      "code": "CS201",
+      "name": "Data Structures",
+      "year": "sophomore"
+    },
+    {
+      "code": "CS202",
+      "name": "Computer Networks",
+      "year": "sophomore"
+    },
+    {
+      "code": "CS203",
+      "name": "High-level Language Programming",
+      "year": "sophomore"
+    },
+    {
+      "code": "EE201",
+      "name": "Fundamentals of Electronic Technology",
+      "year": "sophomore"
+    },
+    {
+      "code": "CS301",
+      "name": "OOP",
+      "year": "junior"
+    },
+    {
+      "code": "CS302",
+      "name": "Data Base Systems",
+      "year": "junior"
+    },
+    {
+      "code": "CS303",
+      "name": "Distributed Systems",
+      "year": "junior"
+    },
+    {
+      "code": "CS304",
+      "name": "AI",
+      "year": "junior"
+    },
+    {
+      "code": "CS305",
+      "name": "ML",
+      "year": "junior"
+    },
+    {
+      "code": "EE301",
+      "name": "Signals and Systems",
+      "year": "junior"
+    },
+    {
+      "code": "EE302",
+      "name": "Signals and Systems — Lab",
+      "year": "junior"
+    }
+  ],
+  "resources": [
+    {
+      "id": "r1",
+      "courseCode": "MATH100",
+      "title": "Pre-Calculus — full folder (notes, homework, exam papers)",
+      "type": "repo",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Freshman/Pre-Calculus",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-09T09:59:08.504Z"
+    },
+    {
+      "id": "r2",
+      "courseCode": "MATH100",
+      "title": "Pre-Calculus exam model papers",
+      "type": "past-paper",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Freshman/Pre-Calculus/Exam%20model%20paper",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-10T09:59:08.504Z"
+    },
+    {
+      "id": "r3",
+      "courseCode": "MATH101",
+      "title": "Calculus lecture slides",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Freshman/Calculus/Lessons",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-11T09:59:08.504Z"
+    },
+    {
+      "id": "r4",
+      "courseCode": "MATH101",
+      "title": "Calculus model tests",
+      "type": "past-paper",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Freshman/Calculus/Model%20Test",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-12T09:59:08.504Z"
+    },
+    {
+      "id": "r5",
+      "courseCode": "MATH102",
+      "title": "Linear Algebra — 2025 materials",
+      "type": "repo",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Freshman/Linear%20Algebra%20/2025",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-13T09:59:08.504Z"
+    },
+    {
+      "id": "r6",
+      "courseCode": "PHYS101",
+      "title": "College Physics IA lecture slides",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Freshman/College%20Physics%20IA/Lessons",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-12T09:59:08.504Z"
+    },
+    {
+      "id": "r7",
+      "courseCode": "PHYS101",
+      "title": "College Physics IA quizzes",
+      "type": "past-paper",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Freshman/College%20Physics%20IA/Quiz",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-14T09:59:08.504Z"
+    },
+    {
+      "id": "r8",
+      "courseCode": "PHYS102",
+      "title": "Electric Circuits lecture slides",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Freshman/Electric%20Circuits/Lessons",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-15T09:59:08.504Z"
+    },
+    {
+      "id": "r9",
+      "courseCode": "PHYS103",
+      "title": "Physics Lab IA — instruction book & sample experiment reports",
+      "type": "repo",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Freshman/Physics%20Lab%20IA",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-16T09:59:08.504Z"
+    },
+    {
+      "id": "r10",
+      "courseCode": "CHIN101",
+      "title": "Elementary Chinese I — 2025 materials",
+      "type": "repo",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Freshman/Elementary%20Chinese%20I/2025",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-13T09:59:08.504Z"
+    },
+    {
+      "id": "r11",
+      "courseCode": "CHIN102",
+      "title": "Elementary Chinese II — course materials",
+      "type": "repo",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Freshman/Elementary%20Chinese%20II",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-14T09:59:08.504Z"
+    },
+    {
+      "id": "r12",
+      "courseCode": "MATH201",
+      "title": "Probability and Statistics lecture slides",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Sophomore/Probability%20and%20Statistics/2025/Slides",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-15T09:59:08.504Z"
+    },
+    {
+      "id": "r13",
+      "courseCode": "PHYS201",
+      "title": "College Physics IB — 2025 materials (slides, tutorials, exam prep)",
+      "type": "repo",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Sophomore/College%20Physics%20IB/2025",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-15T09:59:08.504Z"
+    },
+    {
+      "id": "r14",
+      "courseCode": "PHYS202",
+      "title": "Physics Lab IB — experiment guides",
+      "type": "repo",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Sophomore/Physics%20Lab%20IB",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-15T09:59:08.504Z"
+    },
+    {
+      "id": "r15",
+      "courseCode": "CHIN201",
+      "title": "Intermediate Chinese I — course materials",
+      "type": "repo",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Sophomore/Intermediate%20Chinese%20I",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-15T09:59:08.504Z"
+    },
+    {
+      "id": "r16",
+      "courseCode": "GEN200",
+      "title": "Life and Health Science — weekly materials",
+      "type": "repo",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Sophomore/Life%20And%20Health%20Science",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-15T09:59:08.504Z"
+    },
+    {
+      "id": "r17",
+      "courseCode": "CS201",
+      "title": "Data Structures lecture slides",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Sophomore/Data%20Structures/Slides",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-15T09:59:08.504Z"
+    },
+    {
+      "id": "r18",
+      "courseCode": "CS202",
+      "title": "Computer Networks lecture slides",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Sophomore/Computer%20Networks/Slides",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-15T09:59:08.504Z"
+    },
+    {
+      "id": "r19",
+      "courseCode": "CS203",
+      "title": "High-level Language Programming (C++) slides",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Sophomore/High-level%20Language%20Programming/2025/Slides",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-15T09:59:08.504Z"
+    },
+    {
+      "id": "r20",
+      "courseCode": "EE201",
+      "title": "Fundamentals of Electronic Technology — 2025 materials",
+      "type": "repo",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Sophomore/Fundamentals%20of%20Electronic%20Technology/2025",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-15T09:59:08.504Z"
+    },
+    {
+      "id": "r21",
+      "courseCode": "CS301",
+      "title": "OOP lecture notes",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Junior/OOP/Lessons",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-16T09:59:08.504Z"
+    },
+    {
+      "id": "r22",
+      "courseCode": "CS302",
+      "title": "Database Systems lecture slides",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Junior/Data%20Base%20Systems/Fall%202025/Lecture",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-16T09:59:08.504Z"
+    },
+    {
+      "id": "r23",
+      "courseCode": "CS303",
+      "title": "Distributed Systems lecture notes",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Junior/Distributed%20systems/Lessons",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-16T09:59:08.504Z"
+    },
+    {
+      "id": "r24",
+      "courseCode": "CS304",
+      "title": "AI lecture notes",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Junior/AI/Lecture%20Notes",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-16T09:59:08.504Z"
+    },
+    {
+      "id": "r25",
+      "courseCode": "CS305",
+      "title": "Machine Learning lecture notes",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Junior/ML/Lessons",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-16T09:59:08.504Z"
+    },
+    {
+      "id": "r26",
+      "courseCode": "EE301",
+      "title": "Signals and Systems lecture notes",
+      "type": "notes",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Junior/Signals%20and%20systems/Lessons",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-16T09:59:08.504Z"
+    },
+    {
+      "id": "r27",
+      "courseCode": "EE302",
+      "title": "Signals and Systems — lab experiment reports",
+      "type": "repo",
+      "url": "https://github.com/elalamiimed/HITSZCS/tree/main/Junior/Signals%20and%20systems%20EXP",
+      "addedBy": "HITSZCS archive",
+      "createdAt": "2026-09-16T09:59:08.504Z"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "courseCode": "GEN100",
+      "title": "What was the hardest class in freshman year?",
+      "body": "Trying to plan out how much time to budget for each course this term — curious what upperclassmen found hardest and why.",
+      "askedBy": "New Freshman",
+      "resolved": false,
+      "createdAt": "2026-09-16T09:59:08.504Z",
+      "answers": []
+    },
+    {
+      "id": "q2",
+      "courseCode": "MATH100",
+      "title": "I failed my Pre-Calculus initial exam — what should I do now?",
+      "body": "Just got my result back and I didn't pass the Pre-Calculus placement exam. Not sure what happens next — do I retake it, get placed in a different track, or something else? Has anyone been through this?",
+      "askedBy": "New Freshman",
+      "resolved": false,
+      "createdAt": "2026-09-17T09:59:08.504Z",
+      "answers": []
+    }
+  ]
+}

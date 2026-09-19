@@ -84,3 +84,38 @@ one-off `/api/admin/migrate` route, run once by hand and then deleted,
 keeps that risk at zero: it merges in anything missing from `seedData`
 exactly once, touches nothing else, and doesn't linger as standing
 behavior.
+
+## Chose: Google sign-in (Auth.js) to gate writes, not reads
+
+Anyone could `POST` directly to the API and add anything — the client-side
+"type your name" identity had zero verification behind it. Auth.js
+(`next-auth` v5) with the Google provider replaces that: signing in is
+required to add a resource, ask a question, or post an answer, and the
+submitting name/email is now taken from the verified session
+server-side — never trusted from the request body, closing the exact gap
+that made login worth adding in the first place. Browsing stays public;
+only writes are gated, since the goal was stopping anonymous abuse, not
+locking out casual visitors.
+
+Two things this does *not* do, worth remembering: it doesn't verify
+someone is actually a HITSZ student — any Google account works, by
+design, given most real users are in mainland China and a
+school-domain-only or non-Google approach would've been more locked-down
+but was explicitly not what was asked for. And `role`
+(freshman/sophomore/junior/senior) stays self-declared — Google has no
+way to verify that, so the "Senior" answer highlight is about who *says*
+they're a senior, not a verified fact. Login buys accountability and a
+much higher bar than anonymous drive-by spam, not a guarantee.
+
+## Chose: a domain blocklist for resource links, paired with admin delete
+
+A request to keep 18+ sites from being added as resources. A hardcoded
+domain blocklist (`isBlockedResourceUrl` in `utils.ts`) is a real
+mitigation but not a complete one — it only catches known domains, and
+anything routed through a URL shortener or a lesser-known site slips
+through untouched. Building or paying for a real URL-categorization
+service was overkill for this app's size. The blocklist is the first
+line of defense; `DELETE /api/resources/[id]` (admin-only, gated on
+`ADMIN_EMAILS`) is the backstop for whatever gets through — before this,
+there was no way to remove *anything* once posted, regardless of how it
+got there, which was arguably the bigger gap.

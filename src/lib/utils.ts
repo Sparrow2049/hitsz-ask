@@ -70,3 +70,76 @@ export function matchesSearch(
   if (!needle) return true;
   return fields.some((field) => field?.toLowerCase().includes(needle));
 }
+
+// A short, non-exhaustive blocklist of well-known adult-content domains —
+// a basic speed bump against casual/lazy abuse (see docs/decisions.md for
+// why this isn't meant to be comprehensive). Extend this list, or add
+// more patterns, as needed — pair with the admin delete capability
+// (DELETE /api/resources/[id]) for anything that slips through.
+const BLOCKED_HOSTNAME_PATTERNS: RegExp[] = [
+  /(^|\.)pornhub\.com$/i,
+  /(^|\.)xvideos\.com$/i,
+  /(^|\.)xnxx\.com$/i,
+  /(^|\.)xhamster\.com$/i,
+  /(^|\.)redtube\.com$/i,
+  /(^|\.)youporn\.com$/i,
+  /(^|\.)onlyfans\.com$/i,
+  /\.xxx$/i,
+];
+
+/**
+ * True if the URL's hostname matches a known adult-content domain.
+ * Malformed URLs return false — the caller's own URL validation (the
+ * form's `type="url"` + `required`, and the API route's own checks) is
+ * responsible for rejecting those on separate grounds.
+ */
+export function isBlockedResourceUrl(url: string): boolean {
+  let hostname: string;
+  try {
+    hostname = new URL(url).hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+  return BLOCKED_HOSTNAME_PATTERNS.some((pattern) => pattern.test(hostname));
+}
+
+// TEMP workaround for an Auth.js v5 (beta) type-augmentation issue where
+// session.user.isAdmin isn't recognized by the type checker despite the
+// documented module-augmentation pattern in src/lib/auth.d.ts (augmenting
+// both "next-auth" and "@auth/core/types") — confirmed via raw `tsc
+// --noEmit`, not a Next.js build-wrapper quirk. Runtime behavior is
+// correct (the field really is set in the jwt/session callbacks in
+// auth.ts); this only satisfies the type checker. Revisit once next-auth
+// leaves beta — try removing this and reading session.user.isAdmin
+// directly first.
+export function isAdminSession(session: unknown): boolean {
+  if (!session || typeof session !== "object") return false;
+  const user = (session as { user?: unknown }).user;
+  if (!user || typeof user !== "object") return false;
+  return Boolean((user as { isAdmin?: boolean }).isAdmin);
+}
+
+const DISPLAY_NAME_MAX_LENGTH = 40;
+
+/**
+ * Validates a client-supplied display name override. Returns the trimmed
+ * name if it's a non-empty string within the length limit, otherwise null
+ * (meaning: caller should fall back to the verified Google name/email).
+ *
+ * This only ever affects what name is *shown* next to a post — it never
+ * touches admin authorization, which stays keyed off the real, verified
+ * session email against ADMIN_EMAILS (see isAdminSession above and
+ * docs/decisions.md). A signed-in user could in principle set a display
+ * name that looks like someone else's — that's a real, accepted tradeoff
+ * for letting people not be stuck with their raw Google name, not an
+ * oversight. The account behind every post is still the real Google
+ * account either way, and admin-delete remains the backstop.
+ */
+export function sanitizeDisplayName(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  if (trimmed.length === 0 || trimmed.length > DISPLAY_NAME_MAX_LENGTH) {
+    return null;
+  }
+  return trimmed;
+}

@@ -8,6 +8,7 @@ import {
   matchesSearch,
   isBlockedResourceUrl,
   isAdminSession,
+  sanitizeDisplayName,
 } from "../src/lib/utils.ts";
 
 test("isValidCourseCode accepts real-shaped codes, rejects junk", () => {
@@ -107,4 +108,15 @@ test("isAdminSession only trusts a truthy session.user.isAdmin, and never throws
     false,
     "garbage input shouldn't throw"
   );
+});
+
+test("sanitizeDisplayName trims, enforces bounds, and rejects non-strings", () => {
+  assert.equal(sanitizeDisplayName("  Wei Chen  "), "Wei Chen", "trims whitespace");
+  assert.equal(sanitizeDisplayName(""), null, "empty string");
+  assert.equal(sanitizeDisplayName("   "), null, "whitespace-only");
+  assert.equal(sanitizeDisplayName(null), null);
+  assert.equal(sanitizeDisplayName(undefined), null);
+  assert.equal(sanitizeDisplayName(42), null, "non-string input shouldn't throw");
+  assert.equal(sanitizeDisplayName("a".repeat(40)), "a".repeat(40), "exactly at the limit is fine");
+  assert.equal(sanitizeDisplayName("a".repeat(41)), null, "one over the limit is rejected");
 });

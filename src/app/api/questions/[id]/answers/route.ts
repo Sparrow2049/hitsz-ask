@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addAnswer, getQuestion } from "@/lib/db";
 import { Role } from "@/lib/types";
-import { ROLE_ORDER } from "@/lib/utils";
+import { ROLE_ORDER, sanitizeDisplayName } from "@/lib/utils";
 import { auth } from "@/lib/auth";
 
 export async function POST(
@@ -15,7 +15,7 @@ export async function POST(
 
   const { id } = await params;
   const body = await req.json();
-  const { body: answerBody, role } = body ?? {};
+  const { body: answerBody, role, displayName } = body ?? {};
 
   if (!(await getQuestion(id))) {
     return NextResponse.json({ error: "Question not found." }, { status: 404 });
@@ -27,11 +27,16 @@ export async function POST(
     return NextResponse.json({ error: "Invalid role." }, { status: 400 });
   }
 
-  // answeredBy comes from the verified session, never trusted from the
-  // client body. `role` stays client-supplied — it's a self-declared
-  // preference, not something Google can verify (see src/lib/role.tsx) —
-  // but it's still validated against ROLE_ORDER above.
-  const answeredBy = session.user.name ?? session.user.email ?? "Unknown";
+  // The real identity always comes from the verified session. `role`
+  // stays client-supplied since it's a self-declared preference Google
+  // can't verify (see src/lib/role.tsx) — validated against ROLE_ORDER
+  // above. answeredBy shows the self-declared display name when one's
+  // set (see src/lib/displayName.tsx), falling back to the real name.
+  const answeredBy =
+    sanitizeDisplayName(displayName) ??
+    session.user.name ??
+    session.user.email ??
+    "Unknown";
   const answer = await addAnswer(id, {
     body: answerBody,
     answeredBy,

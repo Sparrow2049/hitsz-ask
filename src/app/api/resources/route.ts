@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addResource, getCourse } from "@/lib/db";
-import { isValidCourseCode, isBlockedResourceUrl } from "@/lib/utils";
+import { isValidCourseCode, isBlockedResourceUrl, sanitizeDisplayName } from "@/lib/utils";
 import { ResourceType } from "@/lib/types";
 import { auth } from "@/lib/auth";
 
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { courseCode, title, type, url } = body ?? {};
+  const { courseCode, title, type, url, displayName } = body ?? {};
 
   if (!isValidCourseCode(courseCode ?? "")) {
     return NextResponse.json({ error: "Invalid course code." }, { status: 400 });
@@ -37,9 +37,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // addedBy comes from the verified session, never trusted from the
-  // client body — see docs/decisions.md.
-  const addedBy = session.user.name ?? session.user.email ?? "Unknown";
+  // The real identity always comes from the verified session, never
+  // trusted from the client body — see docs/decisions.md. What we show
+  // as addedBy can be overridden by a self-declared display name (like
+  // `role`, this is client-supplied and unverified — see
+  // src/lib/displayName.tsx and sanitizeDisplayName's docstring for why
+  // that's an accepted tradeoff here), falling back to the real name.
+  const addedBy =
+    sanitizeDisplayName(displayName) ??
+    session.user.name ??
+    session.user.email ??
+    "Unknown";
   const resource = await addResource({ courseCode, title, type, url, addedBy });
   return NextResponse.json(resource, { status: 201 });
 }

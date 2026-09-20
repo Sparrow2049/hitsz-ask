@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
+import { useDisplayName } from "@/lib/displayName";
 import { Course } from "@/lib/types";
 import { ROLE_ORDER, ROLE_LABEL } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ export default function QuestionForm({
   lockedCourseCode?: string;
 }) {
   const { data: session, status } = useSession();
+  const { displayName } = useDisplayName();
   const router = useRouter();
 
   const [courseCode, setCourseCode] = useState(
@@ -52,12 +54,14 @@ export default function QuestionForm({
     setSubmitting(true);
     setError(null);
     try {
-      // No askedBy sent — the server derives it from the signed-in
-      // session. See src/app/api/questions/route.ts.
+      // askedBy still isn't sent — the server always derives the real
+      // identity from the signed-in session. displayName is a separate,
+      // optional override of what name gets *shown*. See
+      // src/app/api/questions/route.ts.
       const res = await fetch("/api/questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ courseCode, title, body }),
+        body: JSON.stringify({ courseCode, title, body, displayName }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "Failed");
       setTitle("");

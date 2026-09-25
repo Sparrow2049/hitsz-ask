@@ -4,7 +4,7 @@ Get through the semester with people who've already done it.
 
 ## What it is
 
-Waypoint is a course-scoped hub for two things freshmen actually need mid-
+Waypoint is a course-scoped hub for things freshmen actually need mid-
 semester and rarely have a good place to get.
 
 ## Why

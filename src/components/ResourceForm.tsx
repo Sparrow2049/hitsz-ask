@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
+import { useDisplayName } from "@/lib/displayName";
 import { Course, ResourceType } from "@/lib/types";
 import { ROLE_ORDER, ROLE_LABEL } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ export default function ResourceForm({
   lockedCourseCode?: string;
 }) {
   const { data: session, status } = useSession();
+  const { displayName } = useDisplayName();
   const router = useRouter();
 
   const [courseCode, setCourseCode] = useState(
@@ -60,13 +62,15 @@ export default function ResourceForm({
     setSubmitting(true);
     setError(null);
     try {
-      // No addedBy sent — the server derives it from the signed-in
-      // session, not whatever the client claims. See
+      // addedBy still isn't sent — the server always derives the real
+      // identity from the signed-in session. displayName is a separate,
+      // optional override of what name gets *shown*; the server falls
+      // back to the Google name if it's missing or invalid. See
       // src/app/api/resources/route.ts.
       const res = await fetch("/api/resources", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ courseCode, title, type, url }),
+        body: JSON.stringify({ courseCode, title, type, url, displayName }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "Failed");
       setTitle("");

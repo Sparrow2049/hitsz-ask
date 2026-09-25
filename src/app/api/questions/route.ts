@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addQuestion, getCourse } from "@/lib/db";
-import { isValidCourseCode } from "@/lib/utils";
+import { isValidCourseCode, sanitizeDisplayName } from "@/lib/utils";
 import { auth } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
@@ -8,9 +8,15 @@ export async function POST(req: NextRequest) {
   if (!session?.user) {
     return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   }
+  if (!session.user.email) {
+    return NextResponse.json(
+      { error: "Your Google account has no email on file." },
+      { status: 400 }
+    );
+  }
 
   const body = await req.json();
-  const { courseCode, title, body: questionBody } = body ?? {};
+  const { courseCode, title, body: questionBody, displayName } = body ?? {};
 
   if (!isValidCourseCode(courseCode ?? "")) {
     return NextResponse.json({ error: "Invalid course code." }, { status: 400 });
@@ -25,14 +31,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // askedBy comes from the verified session, never trusted from the
-  // client body.
-  const askedBy = session.user.name ?? session.user.email ?? "Unknown";
+  // The real identity always comes from the verified session. askedBy is
+  // shown as the self-declared display name when one's set (see
+  // src/lib/displayName.tsx), falling back to the real name.
+  const askedBy =
+    sanitizeDisplayName(displayName) ??
+    session.user.name ??
+    session.user.email ??
+    "Unknown";
   const question = await addQuestion({
     courseCode,
     title,
     body: questionBody,
     askedBy,
+    askedByEmail: session.user.email,
   });
   return NextResponse.json(question, { status: 201 });
 }

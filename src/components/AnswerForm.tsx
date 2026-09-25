@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import { useRole } from "@/lib/role";
+import { useDisplayName } from "@/lib/displayName";
 
 export default function AnswerForm({ questionId }: { questionId: string }) {
   const { data: session, status } = useSession();
   const { role } = useRole();
+  const { displayName } = useDisplayName();
   const router = useRouter();
 
   const [body, setBody] = useState("");
@@ -42,14 +44,15 @@ export default function AnswerForm({ questionId }: { questionId: string }) {
     setSubmitting(true);
     setError(null);
     try {
-      // No answeredBy sent — the server derives it from the signed-in
-      // session. `role` still comes from the client since it's a
-      // self-declared preference, not something Google can verify — see
-      // src/lib/role.tsx.
+      // answeredBy still isn't sent — the server always derives the real
+      // identity from the signed-in session. `role` comes from the client
+      // since it's a self-declared preference Google can't verify (see
+      // src/lib/role.tsx); displayName is likewise an optional, separate
+      // override of what name gets *shown* — see src/lib/displayName.tsx.
       const res = await fetch(`/api/questions/${questionId}/answers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body, role }),
+        body: JSON.stringify({ body, role, displayName }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "Failed");
       setBody("");

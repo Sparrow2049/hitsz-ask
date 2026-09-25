@@ -5,6 +5,7 @@ import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import { auth } from "@/lib/auth";
 import { RoleProvider } from "@/lib/role";
+import { DisplayNameProvider } from "@/lib/displayName";
 import Header from "@/components/Header";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -41,15 +42,17 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <SessionProvider session={session}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <RoleProvider>
-              <Header />
-              <main className="flex-1">{children}</main>
-              <footer className="border-t border-border py-6 text-center text-xs text-text-muted">
-                <p>© {new Date().getFullYear()} Arthur. All rights reserved.</p>
-                <p className="mt-1">
-                  Built with Jesselyn — thanks for the collaboration.
-                </p>
-              </footer>
-              <ThemeToggle />
+              <DisplayNameProvider>
+                <Header />
+                <main className="flex-1">{children}</main>
+                <footer className="border-t border-border py-6 text-center text-xs text-text-muted">
+                  <p>© {new Date().getFullYear()} Arthur. All rights reserved.</p>
+                  <p className="mt-1">
+                    Built with Jesselyn — thanks for the collaboration.
+                  </p>
+                </footer>
+                <ThemeToggle />
+              </DisplayNameProvider>
             </RoleProvider>
           </ThemeProvider>
         </SessionProvider>

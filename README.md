@@ -5,13 +5,7 @@ Get through the semester with people who've already done it.
 ## What it is
 
 Waypoint is a course-scoped hub for two things freshmen actually need mid-
-semester and rarely have a good place to get:
-
-- **Ask a senior** — post a question tied to a course. Students who've
-  taken it (or anyone, really) can answer; a senior's answer marks the
-  question resolved.
-- **Share resources** — notes, past papers, and repo links, organized by
-  course instead of scattered across group chats nobody can search.
+semester and rarely have a good place to get.
 
 ## Why
 
@@ -20,16 +14,6 @@ exists — it's just trapped in a graduated senior's Google Drive, or three
 scroll-years deep in a WhatsApp group. Waypoint doesn't try to replace
 office hours or Discord. It just gives both of those things a permanent,
 searchable, course-shaped home.
-
-## Architecture
-
-The short version: **Ask a senior** and **Share resources** are the same
-underlying shape — content scoped to a course — so they share one data
-model instead of being built as two separate mini-apps. See
-[`docs/architecture.md`](docs/architecture.md) for the full breakdown and
-[`docs/decisions.md`](docs/decisions.md) for what was deliberately scoped
-out and why (no database until Vercel needed one, no file uploads — no
-longer "no login system," see the decision on why that changed).
 
 ## Project structure
 

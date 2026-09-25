@@ -1,9 +1,11 @@
 import { getCourses, listQuestions } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import QuestionCard from "@/components/QuestionCard";
 import QuestionForm from "@/components/QuestionForm";
 import EmptyState from "@/components/EmptyState";
 import CourseFilterRow from "@/components/CourseFilterRow";
 import SearchBar from "@/components/SearchBar";
+import { canManagePost, voteView } from "@/lib/utils";
 
 export default async function AskPage({
   searchParams,
@@ -11,8 +13,17 @@ export default async function AskPage({
   searchParams: Promise<{ course?: string; query?: string }>;
 }) {
   const { course, query } = await searchParams;
+  const session = await auth();
+  const email = session?.user?.email;
   const courses = await getCourses();
   const questions = await listQuestions(course, query);
+  const questionsView = questions.map(
+    ({ askedByEmail, upvotedBy, downvotedBy, ...q }) => ({
+      ...q,
+      canManage: canManagePost(session, askedByEmail),
+      ...voteView(upvotedBy, downvotedBy, email),
+    })
+  );
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
@@ -46,8 +57,16 @@ export default async function AskPage({
             }
           />
         ) : (
-          questions.map((q) => (
-            <QuestionCard key={q.id} question={q} showCourse={!course} />
+          questionsView.map((q) => (
+            <QuestionCard
+              key={q.id}
+              question={q}
+              showCourse={!course}
+              canManage={q.canManage}
+              upvotes={q.upvotes}
+              downvotes={q.downvotes}
+              myVote={q.myVote}
+            />
           ))
         )}
       </div>

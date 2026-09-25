@@ -3,19 +3,29 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { isAdminSession } from "@/lib/utils";
 import { Question } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/utils";
+import ReportButton from "./ReportButton";
+import VoteControl from "./VoteControl";
 
 export default function QuestionCard({
   question,
   showCourse = false,
+  canManage = false,
+  upvotes,
+  downvotes,
+  myVote,
 }: {
-  question: Question;
+  // Callers strip askedByEmail AND the raw upvotedBy/downvotedBy arrays
+  // before this reaches the client — see src/lib/utils.ts's
+  // canManagePost/voteView and every page that renders this card.
+  question: Omit<Question, "askedByEmail" | "upvotedBy" | "downvotedBy">;
   showCourse?: boolean;
+  canManage?: boolean;
+  upvotes: number;
+  downvotes: number;
+  myVote: "up" | "down" | null;
 }) {
-  const { data: session } = useSession();
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
 
@@ -72,7 +82,16 @@ export default function QuestionCard({
           </span>
         </div>
       </Link>
-      {isAdminSession(session) && (
+      <div className="mt-1.5 flex items-center justify-between">
+        <VoteControl
+          questionId={question.id}
+          upvotes={upvotes}
+          downvotes={downvotes}
+          myVote={myVote}
+        />
+        <ReportButton targetType="question" targetId={question.id} />
+      </div>
+      {canManage && (
         <button
           onClick={handleDelete}
           disabled={deleting}

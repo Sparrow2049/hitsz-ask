@@ -330,4 +330,12 @@ export const seedData: DbShape = {
       answers: [],
     },
   ],
+  // No seed entries here on purpose — unlike courses/resources/questions,
+  // this app is live now (not screenshot-judged), so a fake demo study
+  // session with a made-up creator would be misleading rather than
+  // helpful. Starts empty; real sessions come from real sign-ins.
+  studyGroups: [],
+  // Same reasoning as studyGroups above — starts empty, no fake demo
+  // reports on a live site.
+  reports: [],
 };

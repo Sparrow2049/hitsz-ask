@@ -8,6 +8,12 @@ export async function POST(req: NextRequest) {
   if (!session?.user) {
     return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   }
+  if (!session.user.email) {
+    return NextResponse.json(
+      { error: "Your Google account has no email on file." },
+      { status: 400 }
+    );
+  }
 
   const body = await req.json();
   const { courseCode, title, body: questionBody, displayName } = body ?? {};
@@ -38,6 +44,7 @@ export async function POST(req: NextRequest) {
     title,
     body: questionBody,
     askedBy,
+    askedByEmail: session.user.email,
   });
   return NextResponse.json(question, { status: 201 });
 }

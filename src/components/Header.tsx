@@ -19,6 +19,18 @@ export default function Header() {
           >
             Resources
           </Link>
+          <Link
+            href="/study"
+            className="hover:text-text transition-colors"
+          >
+            Study Buddy
+          </Link>
+          <Link
+            href="/my-posts"
+            className="hover:text-text transition-colors"
+          >
+            My posts
+          </Link>
         </nav>
 
         <IdentityBadge />

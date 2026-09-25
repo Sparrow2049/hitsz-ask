@@ -11,7 +11,9 @@ export default function YearAccordion({
   resources,
 }: {
   courses: Course[];
-  resources: Resource[];
+  // Already stripped of addedByEmail and annotated with canManage by the
+  // page that renders this — see src/app/resources/page.tsx.
+  resources: (Omit<Resource, "addedByEmail"> & { canManage: boolean })[];
 }) {
   // Nothing open by default — pick a year to see it, matching how this
   // was described: 4 options, one panel visible at a time.
@@ -68,7 +70,12 @@ export default function YearAccordion({
                   />
                 ) : (
                   yearResources.map((r) => (
-                    <ResourceCard key={r.id} resource={r} showCourse />
+                    <ResourceCard
+                      key={r.id}
+                      resource={r}
+                      showCourse
+                      canManage={r.canManage}
+                    />
                   ))
                 )}
               </div>

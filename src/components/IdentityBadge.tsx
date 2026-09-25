@@ -1,10 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRole } from "@/lib/role";
 import { useDisplayName } from "@/lib/displayName";
-import { initials, ROLE_ORDER, ROLE_LABEL, sanitizeDisplayName } from "@/lib/utils";
+import {
+  initials,
+  ROLE_ORDER,
+  ROLE_LABEL,
+  sanitizeDisplayName,
+  isAdminSession,
+} from "@/lib/utils";
 import { Role } from "@/lib/types";
 
 export default function IdentityBadge() {
@@ -92,6 +99,14 @@ export default function IdentityBadge() {
           </option>
         ))}
       </select>
+      {isAdminSession(session) && (
+        <Link
+          href="/admin/reports"
+          className="text-xs text-text-muted hover:text-text underline underline-offset-2"
+        >
+          reports
+        </Link>
+      )}
       <button
         onClick={() => signOut()}
         className="text-xs text-text-muted hover:text-text underline underline-offset-2"

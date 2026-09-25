@@ -11,6 +11,17 @@ export async function POST(req: NextRequest) {
   if (!session?.user) {
     return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   }
+  // Google always provides an email with the openid/email/profile scopes
+  // this app requests, so this should never actually trigger — but
+  // addedByEmail is what the owner-delete/edit and /my-posts checks key
+  // off of, so it's worth failing loudly here rather than silently
+  // storing a resource no one (but an admin) could ever manage.
+  if (!session.user.email) {
+    return NextResponse.json(
+      { error: "Your Google account has no email on file." },
+      { status: 400 }
+    );
+  }
 
   const body = await req.json();
   const { courseCode, title, type, url, displayName } = body ?? {};
@@ -48,6 +59,13 @@ export async function POST(req: NextRequest) {
     session.user.name ??
     session.user.email ??
     "Unknown";
-  const resource = await addResource({ courseCode, title, type, url, addedBy });
+  const resource = await addResource({
+    courseCode,
+    title,
+    type,
+    url,
+    addedBy,
+    addedByEmail: session.user.email,
+  });
   return NextResponse.json(resource, { status: 201 });
 }

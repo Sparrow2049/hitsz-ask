@@ -45,9 +45,44 @@ export function formatRelativeTime(iso: string, now: Date = new Date()): string 
   return `${weeks}w ago`;
 }
 
-/** Newest-first, stable for equal timestamps. */
+/**
+ * Turns raw upvotedBy/downvotedBy email arrays (never sent to the
+ * client — see Answer.upvotedBy's docstring in types.ts) into what a
+ * VoteControl actually needs: counts, plus this viewer's own vote state.
+ * Arrays are optional on the underlying type (pre-voting content doesn't
+ * have them — readDb() self-heals them to [] on read, but this stays
+ * defensive rather than assuming that always ran first). No email (signed
+ * out) always means myVote is null — you can't have voted.
+ */
+export function voteView(
+  upvotedBy: string[] | undefined,
+  downvotedBy: string[] | undefined,
+  email: string | null | undefined
+): { upvotes: number; downvotes: number; myVote: "up" | "down" | null } {
+  const up = upvotedBy ?? [];
+  const down = downvotedBy ?? [];
+  const myVote = email ? (up.includes(email) ? "up" : down.includes(email) ? "down" : null) : null;
+  return { upvotes: up.length, downvotes: down.length, myVote };
+}
 export function sortByNewest<T extends { createdAt: string }>(items: T[]): T[] {
   return [...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+/**
+ * True once a Study Buddy session's scheduled date+time is in the past.
+ * Drives the auto-hide behavior in listStudyGroups — Arthur's call
+ * (no toggle, no manual pruning: once it's past, it's just gone from the
+ * list). Malformed date/time never counts as past — safer to show
+ * something odd than to silently disappear it.
+ */
+export function isPastSession(
+  date: string,
+  time: string,
+  now: Date = new Date()
+): boolean {
+  const scheduled = new Date(`${date}T${time}`);
+  if (Number.isNaN(scheduled.getTime())) return false;
+  return scheduled.getTime() < now.getTime();
 }
 
 export function initials(name: string): string {
@@ -117,6 +152,26 @@ export function isAdminSession(session: unknown): boolean {
   const user = (session as { user?: unknown }).user;
   if (!user || typeof user !== "object") return false;
   return Boolean((user as { isAdmin?: boolean }).isAdmin);
+}
+
+/**
+ * True if the signed-in session is allowed to edit/delete a specific post
+ * — either they're an admin (can manage anything, per isAdminSession
+ * above), or their verified session email matches the post's stored
+ * owner email. `ownerEmail` is undefined for content added before the
+ * ownership feature existed, which this correctly treats as "no one but
+ * an admin can manage it" rather than trying to guess an owner.
+ */
+export function canManagePost(
+  session: unknown,
+  ownerEmail: string | undefined
+): boolean {
+  if (isAdminSession(session)) return true;
+  if (!ownerEmail || !session || typeof session !== "object") return false;
+  const user = (session as { user?: unknown }).user;
+  if (!user || typeof user !== "object") return false;
+  const email = (user as { email?: unknown }).email;
+  return typeof email === "string" && email === ownerEmail;
 }
 
 const DISPLAY_NAME_MAX_LENGTH = 40;

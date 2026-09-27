@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { createClient } from "@libsql/client";
 import { DbShape, Course, Resource, Question, Answer, Role, StudyGroup, Report, VoteDirection } from "./types";
 import { seedData } from "./seed";
-import { matchesSearch, isPastSession, sortByNewest } from "./utils";
+import { matchesSearch, isPastSession, sortByNewest, sortAnswersByScore } from "./utils";
 
 // --- Two storage modes, one interface ---
 //
@@ -274,8 +274,16 @@ export async function listQuestions(
   return [...filtered].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+/**
+ * Answers come back sorted highest-score-first (see sortAnswersByScore)
+ * — this is the one place a question's answers are actually displayed
+ * (the /ask/[id] detail page), so that's where the sort belongs rather
+ * than on every question everywhere questions are listed.
+ */
 export async function getQuestion(id: string): Promise<Question | undefined> {
-  return (await readDb()).questions.find((q) => q.id === id);
+  const question = (await readDb()).questions.find((q) => q.id === id);
+  if (!question) return undefined;
+  return { ...question, answers: sortAnswersByScore(question.answers) };
 }
 
 export async function addQuestion(input: {

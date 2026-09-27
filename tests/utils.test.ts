@@ -12,6 +12,7 @@ import {
   canManagePost,
   isPastSession,
   voteView,
+  sortAnswersByScore,
 } from "../src/lib/utils.ts";
 
 test("isValidCourseCode accepts real-shaped codes, rejects junk", () => {
@@ -195,5 +196,21 @@ test("voteView turns raw vote arrays into counts + this viewer's own vote state"
     voteView(undefined, undefined, "alice@example.com"),
     { upvotes: 0, downvotes: 0, myVote: null },
     "pre-voting content with no arrays at all yet"
+  );
+});
+
+test("sortAnswersByScore orders by net score, newest first on a tie", () => {
+  const answers = [
+    { id: "old-zero", createdAt: "2026-01-01", upvotedBy: [], downvotedBy: [] },
+    { id: "low", createdAt: "2026-01-02", upvotedBy: ["a"], downvotedBy: ["b", "c"] }, // -1
+    { id: "high", createdAt: "2026-01-03", upvotedBy: ["a", "b", "c"], downvotedBy: [] }, // +3
+    { id: "new-zero", createdAt: "2026-01-04" }, // no arrays at all — pre-voting content
+  ];
+
+  const sorted = sortAnswersByScore(answers).map((a) => a.id);
+  assert.deepEqual(
+    sorted,
+    ["high", "new-zero", "old-zero", "low"],
+    "+3 first, then the two 0-score answers newest-first, then -1 last"
   );
 });

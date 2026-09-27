@@ -64,6 +64,25 @@ export function voteView(
   const myVote = email ? (up.includes(email) ? "up" : down.includes(email) ? "down" : null) : null;
   return { upvotes: up.length, downvotes: down.length, myVote };
 }
+
+/**
+ * Highest net score (upvotes - downvotes) first; ties broken by newest,
+ * so a freshly-posted answer sitting at zero doesn't get buried under an
+ * older answer that's also at zero — recency is the tiebreaker, not a
+ * penalty. Used to order a question's answers now that they can be
+ * voted on (see getQuestion in db.ts).
+ */
+export function sortAnswersByScore<
+  T extends { upvotedBy?: string[]; downvotedBy?: string[]; createdAt: string }
+>(answers: T[]): T[] {
+  return [...answers].sort((a, b) => {
+    const scoreA = (a.upvotedBy?.length ?? 0) - (a.downvotedBy?.length ?? 0);
+    const scoreB = (b.upvotedBy?.length ?? 0) - (b.downvotedBy?.length ?? 0);
+    if (scoreB !== scoreA) return scoreB - scoreA;
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+}
+
 export function sortByNewest<T extends { createdAt: string }>(items: T[]): T[] {
   return [...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }

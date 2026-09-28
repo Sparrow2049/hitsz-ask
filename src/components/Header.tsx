@@ -6,7 +6,7 @@ export default function Header() {
   return (
     <header className="border-b border-border">
       <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between gap-6">
-        <div className="flex items-baseline gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <LogoEasterEgg />
           <Link href="/" className="font-display text-xl text-text">
             Waypoint

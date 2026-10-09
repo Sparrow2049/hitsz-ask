@@ -1,13 +1,16 @@
 @import "tailwindcss";
 
-/* Light mode (default) */
+/* Light mode (default) — warm ivory/paper tones, in the spirit of Claude's
+   own light theme. Every neutral here leans warm (a touch of yellow/brown)
+   rather than blue-gray, so cards, inputs, and text all sit in one family.
+   Muted text is >= 4.9:1 contrast on bg, surface, and surface-raised. */
 :root {
-  --color-bg: #f1efea;
-  --color-surface: #a3b7d1;
-  --color-surface-raised: #e3ecf8;
-  --color-border: #6b7076;
-  --color-text: #0b0d10;
-  --color-text-muted: #3f6897;
+  --color-bg: #faf9f5;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f3f1ea;
+  --color-border: #e2dfd4;
+  --color-text: #141413;
+  --color-text-muted: #6b6960;
   --color-accent: #e8a33d;
   --color-accent-ink: #211e16;
   --color-senior: #27865c;

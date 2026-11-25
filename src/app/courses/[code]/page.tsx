@@ -6,7 +6,7 @@ import QuestionCard from "@/components/QuestionCard";
 import ResourceForm from "@/components/ResourceForm";
 import QuestionForm from "@/components/QuestionForm";
 import EmptyState from "@/components/EmptyState";
-import { ROLE_LABEL, canManagePost, voteView } from "@/lib/utils";
+import { courseGroupLabel, canManagePost, voteView } from "@/lib/utils";
 
 export default async function CoursePage({
   params,
@@ -42,7 +42,7 @@ export default async function CoursePage({
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
       <p className="text-sm text-text-muted">
-        {course.code} · {ROLE_LABEL[course.year]}
+        {course.code} · {courseGroupLabel(course)}
       </p>
       <h1 className="font-display text-3xl text-text">{course.name}</h1>
 

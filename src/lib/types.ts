@@ -10,10 +10,28 @@ export interface Identity {
   role: Role;
 }
 
+// Mirrors the top-level folders of the HITSZCS archive (see seed.ts).
+// "electives" merges its Elective Courses and General Courses folders into
+// one group. Structurally identical to SCHOOL_ORDER in utils.ts, which
+// can't import this file (see the note at the top of utils.ts).
+export type School =
+  | "public"
+  | "informatics"
+  | "future-studies"
+  | "ai"
+  | "electives";
+
 export interface Course {
   code: string; // e.g. "CS201" — the unit everything else is organized by
   name: string; // e.g. "Data Structures"
-  year: Role; // which class year this course belongs to
+  // Which class year this course is taken in, or "any" for courses open to
+  // every year (the General electives group), which get no year sub-heading.
+  year: Role | "any";
+  // Which school/folder the course belongs to. Optional only because courses
+  // already sitting in the live store predate this field — use
+  // courseSchool() from utils.ts rather than reading it raw, it falls back
+  // to the old year-based grouping until the admin sync has filled it in.
+  school?: School;
 }
 
 export type ResourceType = "notes" | "past-paper" | "link" | "repo";

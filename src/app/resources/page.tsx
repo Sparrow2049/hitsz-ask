@@ -4,7 +4,7 @@ import ResourceCard from "@/components/ResourceCard";
 import ResourceForm from "@/components/ResourceForm";
 import EmptyState from "@/components/EmptyState";
 import SearchBar from "@/components/SearchBar";
-import YearAccordion from "@/components/YearAccordion";
+import SchoolAccordion from "@/components/SchoolAccordion";
 import { canManagePost } from "@/lib/utils";
 
 export default async function ResourcesPage({
@@ -52,7 +52,7 @@ export default async function ResourcesPage({
             )}
           </div>
         ) : (
-          <YearAccordion courses={courses} resources={resourcesView} />
+          <SchoolAccordion courses={courses} resources={resourcesView} />
         )}
       </div>
 

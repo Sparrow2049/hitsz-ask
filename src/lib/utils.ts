@@ -21,6 +21,133 @@ export const ROLE_LABEL: Record<(typeof ROLE_ORDER)[number], string> = {
   senior: "Senior",
 };
 
+// The schools courses are grouped under on /resources and in the course
+// dropdowns. Same story as ROLE_ORDER: single source of truth, structurally
+// identical to the `School` type in types.ts. Order here is display order.
+export const SCHOOL_ORDER = [
+  "public",
+  "informatics",
+  "future-studies",
+  "ai",
+  "electives",
+] as const;
+
+export const SCHOOL_LABEL: Record<(typeof SCHOOL_ORDER)[number], string> = {
+  public: "Public compulsories",
+  informatics: "College of Informatics",
+  "future-studies": "College of Future Studies",
+  ai: "College of AI",
+  electives: "General electives",
+};
+
+type CourseLike = { code: string; year: string; school?: string };
+
+/**
+ * Which school a course belongs to. Courses stored before schools existed
+ * have no `school` — until the admin sync fills it in they fall back to the
+ * grouping the site used at the time (freshman/sophomore were all public
+ * compulsories, junior/senior were all College of Informatics), so nothing
+ * lands in the wrong place or disappears between a deploy and that sync.
+ */
+export function courseSchool(
+  course: Pick<CourseLike, "year" | "school">
+): (typeof SCHOOL_ORDER)[number] {
+  const known = SCHOOL_ORDER.find((s) => s === course.school);
+  if (known) return known;
+  return course.year === "junior" || course.year === "senior"
+    ? "informatics"
+    : "public";
+}
+
+/**
+ * Groups courses school-first, then by year inside each school, in display
+ * order (SCHOOL_ORDER, then ROLE_ORDER, with "any" last). Schools and years
+ * with no courses are left out. A year-less group ("any" — the General
+ * electives) comes back with `label: null`, meaning no sub-heading.
+ */
+export function groupCoursesBySchool<T extends CourseLike>(
+  courses: T[]
+): {
+  school: (typeof SCHOOL_ORDER)[number];
+  label: string;
+  years: { year: string; label: string | null; courses: T[] }[];
+}[] {
+  const yearOrder: string[] = [...ROLE_ORDER, "any"];
+  const groups = [];
+  for (const school of SCHOOL_ORDER) {
+    const inSchool = courses.filter((c) => courseSchool(c) === school);
+    const years = [];
+    for (const year of yearOrder) {
+      const inYear = inSchool.filter((c) => c.year === year);
+      if (inYear.length === 0) continue;
+      years.push({
+        year,
+        label: year === "any" ? null : ROLE_LABEL[year as keyof typeof ROLE_LABEL],
+        courses: inYear,
+      });
+    }
+    if (years.length > 0) {
+      groups.push({ school, label: SCHOOL_LABEL[school], years });
+    }
+  }
+  return groups;
+}
+
+/**
+ * Flattens groupCoursesBySchool into <optgroup>-sized chunks for the course
+ * dropdowns: "Public compulsories — Freshman", "General electives", etc.
+ */
+export function courseOptionGroups<T extends CourseLike>(
+  courses: T[]
+): { label: string; courses: T[] }[] {
+  return groupCoursesBySchool(courses).flatMap((g) =>
+    g.years.map((y) => ({
+      label: y.label ? `${g.label} — ${y.label}` : g.label,
+      courses: y.courses,
+    }))
+  );
+}
+
+/** e.g. "College of AI · Sophomore", or just "General electives" for year-less courses. */
+export function courseGroupLabel(course: CourseLike): string {
+  const school = SCHOOL_LABEL[courseSchool(course)];
+  return course.year === "any"
+    ? school
+    : `${school} · ${ROLE_LABEL[course.year as keyof typeof ROLE_LABEL]}`;
+}
+
+/**
+ * The first folder of a link into the HITSZCS repo's tree — "1. Public
+ * Compulsories" for .../tree/main/1.%20Public%20Compulsories/Freshmen/... —
+ * decoded, or null if the link isn't into that repo's tree at all.
+ */
+export function hitszcsTopFolder(url: string): string | null {
+  const match = /^https:\/\/github\.com\/elalamiimed\/HITSZCS\/tree\/main\/([^/?#]+)/i.exec(url);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+/**
+ * True for a link into a HITSZCS top-level folder that no current seed link
+ * uses any more — i.e. a link from before the repo was last reorganised
+ * (old: Freshman/, Sophomore/, Junior/; then un-numbered "Public
+ * Compulsories" etc.; now "1. Public Compulsories" etc.), which will 404.
+ * `currentTopFolders` is the set of top-level folders the seed's own links
+ * use, so this stays correct the next time the repo moves things around and
+ * seed.ts is updated, with nothing here to maintain. The admin sync only
+ * rewrites links that match this: an admin-edited link that still points
+ * into a current folder, or any link that isn't into HITSZCS at all, is
+ * never touched.
+ */
+export function isStaleHitszcsUrl(url: string, currentTopFolders: string[]): boolean {
+  const top = hitszcsTopFolder(url);
+  return top !== null && !currentTopFolders.includes(top);
+}
+
 /** e.g. "cs201" -> true, "cs2" -> false, "history" -> false */
 export function isValidCourseCode(code: string): boolean {
   return COURSE_CODE_PATTERN.test(code.trim().toUpperCase());

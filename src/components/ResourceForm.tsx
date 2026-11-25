@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import { useDisplayName } from "@/lib/displayName";
 import { Course, ResourceType } from "@/lib/types";
-import { ROLE_ORDER, ROLE_LABEL } from "@/lib/utils";
+import { courseOptionGroups } from "@/lib/utils";
 
 const TYPES: { value: ResourceType; label: string }[] = [
   { value: "notes", label: "Notes" },
@@ -97,19 +97,15 @@ export default function ResourceForm({
             onChange={(e) => setCourseCode(e.target.value)}
             className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-accent"
           >
-            {ROLE_ORDER.map((year) => {
-              const yearCourses = courses.filter((c) => c.year === year);
-              if (yearCourses.length === 0) return null;
-              return (
-                <optgroup key={year} label={ROLE_LABEL[year]}>
-                  {yearCourses.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.code} — {c.name}
-                    </option>
-                  ))}
-                </optgroup>
-              );
-            })}
+            {courseOptionGroups(courses).map((group) => (
+              <optgroup key={group.label} label={group.label}>
+                {group.courses.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.code} — {c.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
           </select>
         )}
         <select

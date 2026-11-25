@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { createClient } from "@libsql/client";
 import { DbShape, Course, Resource, Question, Answer, Role, StudyGroup, Report, VoteDirection } from "./types";
 import { seedData } from "./seed";
-import { matchesSearch, isPastSession, sortByNewest, sortAnswersByScore } from "./utils";
+import { matchesSearch, isPastSession, sortByNewest, sortAnswersByScore, isStaleHitszcsUrl, hitszcsTopFolder } from "./utils";
 
 // --- Two storage modes, one interface ---
 //
@@ -109,32 +109,53 @@ export async function getCourse(code: string): Promise<Course | undefined> {
   return (await readDb()).courses.find((c) => c.code === code.toUpperCase());
 }
 
-// One-time, idempotent migration for when the seed data schema evolves
-// after a Turso store already has real data in it. readDb() only ever
-// seeds a *brand new* store (see above) — it has no way to know the seed
-// data changed shape on an existing deployment, so new/changed seed
-// entries silently never reach production without something like this.
-// Purely additive: never removes or overwrites anything, including real
-// user-submitted resources/questions. Safe to call more than once — the
-// second call is a no-op.
-export async function migrateSeedCourses(): Promise<{
+// Brings an already-populated store in line with seed.ts. readDb() only
+// ever seeds a *brand new* store (see above) — it has no way to know the
+// seed data changed on an existing deployment, so changes to seed.ts
+// silently never reach production without something like this. Safe to run
+// more than once: the second run finds nothing left to do.
+//
+// What it touches, and what it deliberately doesn't:
+//   - Courses in the seed: their `school` and `year` are set to the seed's
+//     values. Nothing in the app edits those, so there's nothing to clobber.
+//   - Seed courses missing from the store are added.
+//   - Seed resources (matched by id) whose stored link points into a
+//     HITSZCS top-level folder that no current seed link uses (see
+//     isStaleHitszcsUrl — the repo has been reorganised more than once)
+//     get the seed's current link. Any other link — edited by an admin to
+//     point somewhere current, or posted by a user — is never touched.
+//   - Seed resources missing from the store are added. (This would bring
+//     back a seed resource an admin had deleted; the response lists every
+//     id it adds, and `dryRun` shows that without writing anything.)
+//   - Everything else — user-submitted resources, questions, answers,
+//     votes, study sessions, reports — is never read or modified.
+export async function migrateSeedCourses(
+  options: { dryRun?: boolean } = {}
+): Promise<{
+  dryRun: boolean;
   coursesAdded: string[];
-  yearsBackfilled: string[];
+  coursesRegrouped: string[];
+  resourceLinksFixed: string[];
   resourcesAdded: string[];
 }> {
+  const dryRun = Boolean(options.dryRun);
   const db = await readDb();
   const coursesAdded: string[] = [];
-  const yearsBackfilled: string[] = [];
+  const coursesRegrouped: string[] = [];
+  const resourceLinksFixed: string[] = [];
   const resourcesAdded: string[] = [];
 
-  // Backfill `year` on courses persisted before that field existed.
+  // Existing seed courses: sync school + year (also backfills courses
+  // persisted before either field existed).
   for (const course of db.courses) {
-    if (!course.year) {
-      const seedMatch = seedData.courses.find((c) => c.code === course.code);
-      if (seedMatch) {
-        course.year = seedMatch.year;
-        yearsBackfilled.push(course.code);
-      }
+    const seedMatch = seedData.courses.find((c) => c.code === course.code);
+    if (!seedMatch) continue;
+    // Compare against the real stored school, not courseSchool()'s fallback
+    // — a missing school has to count as a difference so it gets filled in.
+    if (course.year !== seedMatch.year || course.school !== seedMatch.school) {
+      course.year = seedMatch.year;
+      course.school = seedMatch.school;
+      coursesRegrouped.push(course.code);
     }
   }
 
@@ -147,6 +168,27 @@ export async function migrateSeedCourses(): Promise<{
     }
   }
 
+  // Repair stale links on seed resources.
+  const seedResourceById = new Map(seedData.resources.map((r) => [r.id, r]));
+  const currentTopFolders = [
+    ...new Set(
+      seedData.resources
+        .map((r) => hitszcsTopFolder(r.url))
+        .filter((f): f is string => f !== null)
+    ),
+  ];
+  for (const resource of db.resources) {
+    const seedMatch = seedResourceById.get(resource.id);
+    if (
+      seedMatch &&
+      isStaleHitszcsUrl(resource.url, currentTopFolders) &&
+      resource.url !== seedMatch.url
+    ) {
+      resource.url = seedMatch.url;
+      resourceLinksFixed.push(resource.id);
+    }
+  }
+
   // Add seed resources that don't exist in the store yet.
   const existingResourceIds = new Set(db.resources.map((r) => r.id));
   for (const seedResource of seedData.resources) {
@@ -156,15 +198,16 @@ export async function migrateSeedCourses(): Promise<{
     }
   }
 
-  if (
+  const changed =
     coursesAdded.length ||
-    yearsBackfilled.length ||
-    resourcesAdded.length
-  ) {
+    coursesRegrouped.length ||
+    resourceLinksFixed.length ||
+    resourcesAdded.length;
+  if (changed && !dryRun) {
     await writeDb(db);
   }
 
-  return { coursesAdded, yearsBackfilled, resourcesAdded };
+  return { dryRun, coursesAdded, coursesRegrouped, resourceLinksFixed, resourcesAdded };
 }
 
 // ---- resources ----

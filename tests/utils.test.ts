@@ -13,6 +13,12 @@ import {
   isPastSession,
   voteView,
   sortAnswersByScore,
+  courseSchool,
+  groupCoursesBySchool,
+  courseOptionGroups,
+  courseGroupLabel,
+  hitszcsTopFolder,
+  isStaleHitszcsUrl,
 } from "../src/lib/utils.ts";
 
 test("isValidCourseCode accepts real-shaped codes, rejects junk", () => {
@@ -213,4 +219,104 @@ test("sortAnswersByScore orders by net score, newest first on a tie", () => {
     ["high", "new-zero", "old-zero", "low"],
     "+3 first, then the two 0-score answers newest-first, then -1 last"
   );
+});
+
+test("courseSchool trusts a valid school, and falls back to the old year-based grouping for courses stored before schools existed", () => {
+  assert.equal(courseSchool({ year: "sophomore", school: "ai" }), "ai", "explicit school wins");
+  assert.equal(courseSchool({ year: "freshman" }), "public", "no school, freshman");
+  assert.equal(courseSchool({ year: "sophomore" }), "public", "no school, sophomore");
+  assert.equal(courseSchool({ year: "junior" }), "informatics", "no school, junior");
+  assert.equal(courseSchool({ year: "senior" }), "informatics", "no school, senior");
+  assert.equal(
+    courseSchool({ year: "junior", school: "not-a-school" }),
+    "informatics",
+    "an unrecognised school value is ignored rather than trusted"
+  );
+});
+
+test("groupCoursesBySchool groups school-first then year, in display order, leaving out empty groups", () => {
+  const courses = [
+    { code: "ELEC001", year: "any", school: "electives" },
+    { code: "ME201", year: "sophomore", school: "ai" },
+    { code: "MATH201", year: "sophomore", school: "public" },
+    { code: "ME101", year: "freshman", school: "ai" },
+    { code: "MATH100", year: "freshman", school: "public" },
+    { code: "CS301", year: "junior" }, // stored before schools existed
+    { code: "ECON101", year: "freshman", school: "future-studies" },
+  ];
+
+  const grouped = groupCoursesBySchool(courses);
+  assert.deepEqual(
+    grouped.map((g) => g.school),
+    ["public", "informatics", "future-studies", "ai", "electives"],
+    "schools come out in SCHOOL_ORDER, not input order"
+  );
+  assert.deepEqual(
+    grouped[0].years.map((y) => [y.label, y.courses.map((c) => c.code)]),
+    [
+      ["Freshman", ["MATH100"]],
+      ["Sophomore", ["MATH201"]],
+    ],
+    "years inside a school come out freshman-first"
+  );
+  assert.deepEqual(
+    grouped[1].years[0].courses.map((c) => c.code),
+    ["CS301"],
+    "a course with no school lands in College of Informatics via the fallback"
+  );
+  assert.equal(grouped[4].years[0].label, null, "year-less group has no sub-heading");
+  assert.equal(
+    groupCoursesBySchool([{ code: "MATH100", year: "freshman", school: "public" }]).length,
+    1,
+    "schools with no courses are left out entirely"
+  );
+});
+
+test("courseOptionGroups and courseGroupLabel produce the dropdown / page labels", () => {
+  const courses = [
+    { code: "ME201", year: "sophomore", school: "ai" },
+    { code: "ELEC001", year: "any", school: "electives" },
+    { code: "MATH100", year: "freshman", school: "public" },
+  ];
+  assert.deepEqual(
+    courseOptionGroups(courses).map((g) => g.label),
+    ["Public compulsories — Freshman", "College of AI — Sophomore", "General electives"]
+  );
+  assert.equal(courseGroupLabel(courses[0]), "College of AI · Sophomore");
+  assert.equal(courseGroupLabel(courses[1]), "General electives", "no year suffix for year-less courses");
+  assert.equal(courseGroupLabel({ code: "CS301", year: "junior" }), "College of Informatics · Junior");
+});
+
+test("hitszcsTopFolder pulls the first folder out of a link into the HITSZCS tree", () => {
+  const base = "https://github.com/elalamiimed/HITSZCS/tree/main";
+  assert.equal(hitszcsTopFolder(`${base}/1.%20Public%20Compulsories/Freshmen/Calculus`), "1. Public Compulsories");
+  assert.equal(hitszcsTopFolder(`${base}/AS%20Study%20Materials`), "AS Study Materials");
+  assert.equal(hitszcsTopFolder(`${base}/Freshman/Calculus/Lessons`), "Freshman");
+  assert.equal(hitszcsTopFolder(base), null, "the repo root has no top folder");
+  assert.equal(hitszcsTopFolder("https://github.com/someone-else/repo/tree/main/Freshman/x"), null, "a different repo");
+  assert.equal(hitszcsTopFolder("https://drive.google.com/folder/123"), null);
+  assert.equal(hitszcsTopFolder("not a url"), null, "garbage input shouldn't throw");
+});
+
+test("isStaleHitszcsUrl flags links into top-level folders the seed no longer uses, and nothing else", () => {
+  const base = "https://github.com/elalamiimed/HITSZCS/tree/main";
+  // what the current seed's links use
+  const current = ["1. Public Compulsories", "2. College of Informatics", "AS Study Materials"];
+
+  // first layout (before Oct 2026)
+  assert.equal(isStaleHitszcsUrl(`${base}/Freshman/Calculus/Lessons`, current), true);
+  assert.equal(isStaleHitszcsUrl(`${base}/Junior/OOP/Lessons`, current), true);
+  // second layout (Oct 2026): un-numbered school folders
+  assert.equal(isStaleHitszcsUrl(`${base}/Public%20Compulsories/Freshmen/Calculus`, current), true);
+  assert.equal(isStaleHitszcsUrl(`${base}/College%20of%20Informatics/OOP/Lessons`, current), true);
+  // current layout
+  assert.equal(isStaleHitszcsUrl(`${base}/1.%20Public%20Compulsories/Freshmen/Calculus`, current), false);
+  assert.equal(isStaleHitszcsUrl(`${base}/AS%20Study%20Materials/HLL`, current), false);
+  // never touched: other repos, other sites, garbage
+  assert.equal(isStaleHitszcsUrl("https://github.com/someone-else/repo/tree/main/Freshman/x", current), false);
+  assert.equal(isStaleHitszcsUrl("https://drive.google.com/folder/123", current), false);
+  assert.equal(isStaleHitszcsUrl("not a url", current), false);
+  // follows whatever the seed uses: if the repo reorganises again and the seed
+  // moves to a new folder name, the numbered folders become the stale ones
+  assert.equal(isStaleHitszcsUrl(`${base}/1.%20Public%20Compulsories/Freshmen/Calculus`, ["Courses"]), true);
 });
